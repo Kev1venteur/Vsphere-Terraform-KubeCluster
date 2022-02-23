@@ -23,7 +23,7 @@ sudo apt-get install whois
 ```
 ● Pour Terraform, c'est [ce fichier](terraform/terraform.tfvars) qu'il faut adapter à votre configuration.<br />
 ● Pour Ansible, c'est [ce fichier](ansible/hosts) qu'il faut adapter à votre configuration.<br />
-● Il faut aussi changer les passwords des YAML [Wordpress](ansible/roles/kube-apps/templates/wordpress.yaml#68) et [MySQL](ansible/roles/kube-apps/templates/mysql.yaml#66).<br />
+● Il faut aussi changer les passwords des YAML [Wordpress](ansible/roles/kube-apps/templates/wordpress.yaml#L68) et [MySQL](ansible/roles/kube-apps/templates/mysql.yaml#L66).<br />
 
 ## Prérequis
 Installez les packages nécessaires.
