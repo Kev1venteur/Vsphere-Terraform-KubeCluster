@@ -1,0 +1,56 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: v6hsz0.xzes3aik5777v997
+  ttl: 24h0m0s
+  usages:
+  - signing
+  - authentication
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: {{ inventory_hostname }}
+  bindPort: 6443
+nodeRegistration:
+  criSocket: /var/run/dockershim.sock
+  imagePullPolicy: IfNotPresent
+  name: ubuntu-terraform-packer
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+---
+apiServer:
+  certSANs:
+  - {{ keepalived_vip }}
+  - {{ master01 }}
+  - {{ master02 }}
+  - {{ master03 }}
+  extraArgs:
+    endpoint-reconciler-type: lease
+  timeoutForControlPlane: 4m0s
+apiVersion: kubeadm.k8s.io/v1beta3
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+controllerManager: {}
+dns: {}
+etcd:
+  external:
+    caFile: /etc/kubernetes/pki/etcd/ca.pem
+    certFile: /etc/kubernetes/pki/etcd/etcd.pem
+    endpoints:
+    - https://{{ master01 }}:2379
+    - https://{{ master02 }}:2379
+    - https://{{ master03 }}:2379
+    keyFile: /etc/kubernetes/pki/etcd/etcd-key.pem
+imageRepository: k8s.gcr.io
+kind: ClusterConfiguration
+kubernetesVersion: v1.23.0
+networking:
+  dnsDomain: cluster.local
+  podSubnet: {{ pod_network }}
+  serviceSubnet: 10.96.0.0/12
+scheduler: {}
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: cgroupfs

@@ -1,0 +1,42 @@
+- name: Create yaml folder
+  file: name={{ yaml_dir }} state=directory
+
+- name: Create yaml filses
+  template: src={{ item }} dest={{ yaml_dir }}/{{ item }}
+  with_items:
+  - helm-rbac.yaml
+  - ingress.yaml
+  - kubernetes-dashboard.yaml
+  - nginx-ingress-controller.yaml
+  - ui-rbac.yaml
+  - mysql.yaml
+  - wordpress.yaml
+
+- name: Set up RBAC for dashboard
+  raw: kubectl get clusterrole|grep ui || kubectl create -f {{ yaml_dir }}/ui-rbac.yaml
+                    
+- name: Install kubernetes-dashboard 
+  raw: kubectl get po -n kube-system|grep dashboard || kubectl create -f /root/.kube/kube-apps/kubernetes-dashboard.yaml
+                                
+- name: Install ingress-controller
+  raw: kubectl get po -n kube-system|grep ingress || kubectl create -f /root/.kube/kube-apps/nginx-ingress-controller.yaml
+  
+- name: Remove webhook check
+  raw: kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+                        
+- name: Install ingress
+  raw: kubectl get ing |grep ingress || kubectl create -f /root/.kube/kube-apps/ingress.yaml
+                  
+- name: Set up helm RBAC
+  raw: kubectl get sa -n kube-system|grep tiller || kubectl create -f /root/.kube/kube-apps/helm-rbac.yaml
+           
+- name: Copy helm executable
+  copy: src=./bin/helm/{{ helm_version }}/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - helm
+  
+- name: Set up mysql-db
+  raw: kubectl apply -f /root/.kube/kube-apps/mysql.yaml
+  
+- name: Set up wordpress
+  raw: kubectl apply -f /root/.kube/kube-apps/wordpress.yaml

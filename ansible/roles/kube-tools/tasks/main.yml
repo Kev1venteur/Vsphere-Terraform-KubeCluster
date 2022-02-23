@@ -1,0 +1,38 @@
+- name: Add kubernetes repo
+  template: src=kubernetes.repo dest=/etc/yum.repos.d/kubernetes.repo
+  when: ansible_distribution == "CentOS"
+
+- name: Install kubeadm kubectl kubelet on Centos
+  yum: name={{ item }} update_cache=yes
+  with_items:
+  - kubelet-{{ k8s_version_centos }}
+  - kubeadm-{{ k8s_version_centos }}
+  - kubectl-{{ k8s_version_centos }}
+  when: ansible_distribution == "CentOS"
+
+- name: Change cgroup driver
+  template: src=10-kubeadm.conf dest=/etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  when: ansible_distribution == "CentOS"
+
+- name: Restart kubectl kubelet kubeadm
+  shell: systemctl daemon-reload && systemctl enable kubelet && systemctl restart kubelet
+  when: ansible_distribution == "CentOS"
+
+- name: Add kubernetes apt-key
+  apt_key:
+    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: Add kubernetes source list
+  shell: >
+    echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install kubernetes tools for Ubuntu server
+  apt: name={{ item }} update_cache=yes
+  with_items:
+  - kubelet={{ k8s_version_ubuntu }}
+  - kubectl={{ k8s_version_ubuntu }}
+  - kubeadm={{ k8s_version_ubuntu }}
+  when: ansible_distribution == "Ubuntu"

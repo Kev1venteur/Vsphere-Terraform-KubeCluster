@@ -1,0 +1,32 @@
+- name: Copy docker executables 
+  become: yes
+  copy: src=./bin/docker/{{ docker_version }}/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - docker-containerd
+  - docker-containerd-shim
+  - docker-init
+  - docker-runc
+  - docker
+  - docker-containerd-ctr
+  - dockerd
+  - docker-proxy
+
+- name: Copy docker command
+  become: yes
+  copy: src=docker dest=/etc/bash_completion.d/docker mode=0644
+
+- name: Flush iptables
+  become: yes
+  shell: "iptables -F && iptables -X \
+        && iptables -F -t nat && iptables -X -t nat \
+        && iptables -F -t raw && iptables -X -t raw \
+        && iptables -F -t mangle && iptables -X -t mangle"
+
+- name: Create docker systemd unit file
+  become: yes
+  template: src=docker.service.j2 dest=/etc/systemd/system/docker.service
+
+- name: Start docker service
+  become: yes
+  shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker
+

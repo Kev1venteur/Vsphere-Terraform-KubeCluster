@@ -1,0 +1,31 @@
+- name: Create cert folder
+  file: name={{ item }} state=directory
+  with_items:
+  - "{{ cert_generate_dir }}"
+
+- name: Download CFSSL and kubectl
+  copy: src=./bin/ca/v1.2/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - cfssl
+  - cfssljson
+
+- name: Create CSR and config filses
+  template: src={{ item }} dest={{ cert_generate_dir }}/{{ item }}
+  with_items:
+  - ca-csr.json
+  - ca-config.json
+  - etcd-csr.json
+
+- name: Generate certificates
+  shell: "cd {{ cert_generate_dir }} && {{ bin_dir }}/cfssl gencert \
+        -initca ca-csr.json | cfssljson -bare ca" 
+
+- name: Generate etcd certificates
+  shell: "cd {{ cert_generate_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes etcd-csr.json | {{ bin_dir }}/cfssljson -bare etcd"
+
+
+

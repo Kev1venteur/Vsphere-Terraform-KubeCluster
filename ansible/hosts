@@ -1,0 +1,81 @@
+# Kubernetes nodes
+[first-master]
+192.168.0.41 node_name=master01
+
+[other-master]
+192.168.0.42 node_name=master02
+192.168.0.43 node_name=master03
+
+[kube-node]
+192.168.0.51 node_name=node01
+192.168.0.52 node_name=node02
+192.168.0.53 node_name=node03
+
+[lb-etcd]
+192.168.0.41 if="ens192" lb_role=master priority=100 node_name=master01 
+192.168.0.42 if="ens192" lb_role=backup priority=90 node_name=master02
+192.168.0.43 if="ens192" lb_role=backup priority=80 node_name=master03
+
+
+[all:vars]
+master01="192.168.0.41"
+master02="192.168.0.42"
+master03="192.168.0.43"
+
+ansible_python_interpreter=/usr/bin/python3
+ansible_connection=ssh
+ansible_user=user
+ansible_ssh_pass=<user SSH password>
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+#Kubernetes API Server
+keepalived_vip="192.168.0.44"
+
+kube-apiserver="https://{{ keepalived_vip }}:6443"
+
+# etcd nodes
+tmp_nodes="{% for h in groups['lb-etcd'] %}{{ hostvars[h]['node_name'] }}=https://{{ h }}:2380,{% endfor %}"
+etcd_nodes="{{ tmp_nodes.rstrip(',') }}"
+
+# etcd endpoints
+tem_endpoints="{% for h in groups['lb-etcd'] %}https://{{ h }}:2379,{% endfor %}"
+etcd_endpoints="{{ tem_endpoints.rstrip(',') }}"
+
+# Network plugin (calico or flannel)
+network_plugin="flannel"
+
+# pod network
+pod_network="10.244.0.0/16"
+
+bin_dir="/usr/local/bin"
+
+# Ansible working directory
+base_dir="/etc/ansible"
+
+# The etcd certificates directory on kubernetes master nodes
+etcd_ca_dir="/etc/kubernetes/pki/etcd"
+
+# Docker version
+docker_version="v17.03.2-ce"
+
+# etc version
+etcd_version="v3.3.4"
+
+# Kubernetes version
+k8s_version_ubuntu="1.23.0-00"
+k8s_version_centos="1.23.0-0"
+
+# Helm version
+helm_version="v2.9.1"
+
+# The certificates directory on frist master node
+cert_generate_dir="/opt/ssl"
+
+# Kubernetes apps yaml directory
+yaml_dir="/root/.kube/kube-apps"
+
+# Kubernetes certificates directory
+kube_cert_dir="/etc/kubernetes/pki"
+
+# Kubernetes config path
+kube_config_dir="/etc/kubernetes"

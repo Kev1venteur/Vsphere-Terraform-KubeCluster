@@ -1,0 +1,15 @@
+- name: Copy certificates pki from local to distant
+  ansible.posix.synchronize:
+    src: "/tmp/pki/"
+    dest: "/root/.kube/"
+    mode: push
+    recursive: yes
+
+- name: Create kubectl config folder
+  file: name=/root/.kube state=directory
+
+- name: Join current node into the cluster
+  shell: eval $(cat /root/.kube/join)
+
+
+

@@ -1,0 +1,42 @@
+- name: Copy etcd executables
+  copy: src=./bin/etcd/{{ etcd_version }}/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - etcd
+  - etcdctl
+
+- name: Create etcd CA folder
+  file: name={{ item }} state=directory
+  with_items:
+  - "{{ etcd_ca_dir }}"
+
+- name: Copy etcd certs from distant to local
+  ansible.builtin.fetch:
+    src: "{{ cert_generate_dir }}/{{ item }}"
+    dest: "/tmp/certs/{{ item }}"
+    flat: yes
+  with_items:
+  - ca-key.pem
+  - ca.pem
+  - etcd-key.pem
+  - etcd.pem
+  ignore_errors: yes
+  
+- name: Copy etcd certs from local to distant
+  ansible.builtin.copy:
+    src: "/tmp/certs/{{ item }}"
+    dest: "{{ etcd_ca_dir }}/{{ item }}"
+  with_items:
+  - ca-key.pem
+  - ca.pem
+  - etcd-key.pem
+  - etcd.pem
+
+- name: Create etcd working directroy
+  file: name=/var/lib/etcd state=directory
+
+- name: Create etcd systemd unit file
+  template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
+
+- name: Start etcd service
+  shell: systemctl daemon-reload && systemctl enable etcd && systemctl restart etcd
+

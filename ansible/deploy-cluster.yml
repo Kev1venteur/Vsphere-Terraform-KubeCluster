@@ -1,0 +1,52 @@
+- hosts:
+  - first-master
+  - other-master
+  - kube-node
+  gather_facts: True
+  roles:
+  - preinstall
+  - docker
+  - kube-tools
+
+- hosts:
+  - first-master
+  roles:
+  - certificates
+
+- hosts:
+  - lb-etcd
+  gather_facts: True
+  roles:
+  - etcd
+  - keepalived
+
+- hosts:
+  - first-master
+  roles:
+  - first-master
+
+- hosts:
+  - other-master
+  roles:
+  - other-master
+
+- hosts:
+  - kube-node
+  roles:
+  - kube-node
+
+- hosts:
+  - first-master
+  roles:
+  - { role: flannel, when: "network_plugin == 'flannel'" }
+  - { role: calico, when: "network_plugin == 'calico'" }
+
+  - kube-apps
+
+
+
+
+
+
+
+

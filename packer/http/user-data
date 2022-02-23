@@ -1,0 +1,28 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: fr_FR
+  keyboard:
+    layout: fr
+    variant: fr
+  network:
+    network:
+      version: 2
+      ethernets:
+        ens192:
+          dhcp4: true
+  storage:
+    layout:
+      name: lvm
+  identity:
+    hostname: ubuntu-packer
+    username: user
+    password: $6$vohDKaxDFesC.Ymf$thjxis1KV3J/87eMGIfkY1QWrO0jnQHtj7JwxphEy69FinSiDvwth28qMu9WoC3hzlBjBzwekz8g2aMNMtb5J.
+  ssh:
+    install-server: yes
+    allow-pw: true
+  user-data:
+    disable_root: false
+  late-commands:
+    - echo 'user ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
+    - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/ubuntu

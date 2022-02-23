@@ -1,0 +1,65 @@
+- name: Create certiticates folder
+  file: name={{ etcd_ca_dir }} state=directory
+ 
+- name: Create kubeadm config file
+  template: src=kubeadm-config.yaml.j2 dest={{ kube_config_dir }}/kubeadm-config.yaml  
+
+- name: Check apiserver cert existence
+  stat:
+    path: "{{ kube_cert_dir }}/apiserver.pem"
+  register: old_apiserver_cert
+  run_once: true
+
+- name: Check current master status
+  stat:
+    path: "{{ kube_cert_dir }}/ca.key"
+  register: kubeadm_ca
+
+- name: Delete existing admin.conf
+  file:
+    path: "{{ kube_config_dir }}/admin.conf"
+    state: absent
+  when: not kubeadm_ca.stat.exists
+
+- name: Delete existing static pods
+  file:
+    path: "{{ kube_config_dir }}/manifests/{{item}}.manifest"
+    state: absent
+  with_items: ["kube-apiserver", "kube-controller-manager", "kube-scheduler", "kube-proxy"]
+  when: old_apiserver_cert.stat.exists
+
+- name: Forcefully delete existing static pods
+  shell: "docker ps -f name=k8s_{{item}} -q | xargs --no-run-if-empty docker rm -f"
+  with_items: ["kube-apiserver", "kube-controller-manager", "kube-scheduler"]
+  when: old_apiserver_cert.stat.exists
+
+- name: Init kubernetes master
+  command: timeout -k 300s 300s kubeadm init --config {{ kube_config_dir }}/kubeadm-config.yaml --ignore-preflight-errors=all
+  register: kubeadm_init
+  retries: 3
+  when: not kubeadm_ca.stat.exists
+  failed_when: kubeadm_init.rc != 0 and "field is immutable" not in kubeadm_init.stderr
+
+- name: Create kubectl config folder
+  file: name=/root/.kube state=directory
+
+- name: Copy kubectl config
+  shell: cp {{ kube_config_dir }}/admin.conf /root/.kube/config
+
+- name: Create VIP service point for kubernetes API server
+  shell: sed -i 's/{{ inventory_hostname }}/{{ keepalived_vip }}/' /root/.kube/config
+
+- name: Get the token
+  shell: kubeadm token create --print-join-command > {{ kube_cert_dir }}/join
+
+- name: Change joining command
+  shell: sed -i 's/{{ inventory_hostname }}/{{ keepalived_vip }}/' {{ kube_cert_dir }}/join
+  
+- name: Copy certificates pki folder from distant to local
+  ansible.posix.synchronize:
+    src: "{{ kube_cert_dir }}"
+    dest: "/tmp/"
+    mode: pull
+    recursive: yes
+  ignore_errors: yes
+

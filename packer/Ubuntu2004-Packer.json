@@ -1,0 +1,66 @@
+{
+  "variables": {
+    "vsphere-server": "192.168.0.31",
+    "vsphere-datacenter": "<your dc name>",
+    "vsphere-user": "administrator@<your vsphere domain>",
+    "vsphere-password": "<your vsphere password>",
+    "vsphere-cluster": "<your cluster name>",
+    "vsphere-network": "VM Network",
+    "vsphere-datastore": "<your datastore name>",
+    "vm-name": "Ubuntu2004-Packer",
+    "vm-cpu-num": "4",
+    "vm-mem-size": "4096",
+    "vm-disk-size": "25600",
+    "iso_url": "[Données-Interne] ISO/ubuntu-20.04.3-live-server-amd64.iso"
+  },
+  "builders": [
+    {
+      "type": "vsphere-iso",
+      "vcenter_server": "{{user `vsphere-server`}}",
+      "username": "{{user `vsphere-user`}}",
+      "password": "{{user `vsphere-password`}}",
+      "insecure_connection": "true",
+      "datacenter": "{{user `vsphere-datacenter`}}",
+      "cluster": "{{user `vsphere-cluster`}}",
+      "datastore": "{{user `vsphere-datastore`}}",
+      "guest_os_type": "ubuntu64Guest",
+      "CPUs": 4,
+      "RAM": 4096,
+      "RAM_reserve_all": false,
+      "disk_controller_type": "pvscsi",
+      "storage": {
+        "disk_size": 15000,
+        "disk_thin_provisioned":true
+      },
+      "network_adapters": {
+        "network": "{{user `vsphere-network`}}",
+        "network_card": "vmxnet3"
+      },
+
+      "vm_name": "{{user `vm-name`}}",
+      "notes": "Build via Packer",
+      "convert_to_template": true,
+
+      "ssh_username": "user",
+      "ssh_password": "<user ssh password>",
+      "ssh_timeout": "20m",
+      "ssh_handshake_attempts": "100",
+
+      "iso_paths": ["{{user `iso_url`}}"],
+
+      "cd_files": ["./http/user-data", "./http/meta-data"],
+      "cd_label": "cidata",
+      "boot_wait": "10s",
+      "boot_command": [
+        "<enter><wait5><enter><wait5><f6><esc><wait5>",
+        " autoinstall<wait5> ds=nocloud;",
+        "<wait5><enter><wait45>yes<enter>"
+      ],
+      "shutdown_command": "echo '<user ssh password>'|sudo -S shutdown -P now"
+    }
+  ],
+  "provisioners": [{
+    "type": "shell",
+    "script": "post-script.sh"
+  }]
+}
