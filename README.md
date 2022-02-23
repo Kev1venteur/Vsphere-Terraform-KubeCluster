@@ -5,6 +5,13 @@
   <img src="annexes/images/SchemaFinal.png?style=centerme">
 </p>
 
+:information_source:Le playbook ansible n'est pas encore [Idempotent](https://docs.ansible.com/ansible/latest/reference_appendices/glossary.html).<br />
+Il faudra entre chaque lancement du playbook Ansible, détruire et reconstruire les 6 noeuds K8s :
+```bash
+echo "yes" | terraform destroy && echo "yes" | terraform apply
+```
+C'est un point que nous savons à améliorer, n'hésitez pas à faire des PR !<br />
+
 :information_source: Les mots de passe sont à changer dans ces fichiers :<br />
 ● Le JSON pour Packer, il faut paramétrer les variables dans [ce fichier](packer/Ubuntu2004-Packer.json).<br />
 ● Le fichier User-Data pour la VM Packer, mettre le mot de passe User hashé [ici](packer/http/user-data#L20).<br />
@@ -67,6 +74,10 @@ Exécution d'Ansible :<br />
 <p align="center">
   <img src="annexes/images/Schéma2Terraform.png?style=centerme;width:150px;">
 </p>
+
+## Résultat
+
+Vous avez un Wordpress lié à une bdd MySQL qui sont en place sur un cluster K8s multi-master en moins de 30 minutes.
 
 ## Debug
 
