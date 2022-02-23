@@ -2,7 +2,7 @@
 :key: Ce repo fournit les fichiers Packer, Terraform et Ansible pour dépoyer sur VSphere l'infrastructure illustrée ci-dessous : 
 
 <p align="center">
-  <img src="annexes/images/SchemaFinal.png?style=centerme">
+  <img src="annexes/images/SchemaFinal.png?style=centerme"  width="500">
 </p>
 
 :information_source:Le playbook ansible n'est pas encore [Idempotent](https://docs.ansible.com/ansible/latest/reference_appendices/glossary.html).<br />
@@ -56,13 +56,13 @@ chmod +x magik-script.sh
 ### Etape 1
 Exécution de Packer - Build d'un template VSphere à partir d'un ISO Ubuntu 20.04 déjà présent sur le Datastore VSphere.
 <p align="center">
-  <img src="annexes/images/Schémas1Packer.png?style=centerme">
+  <img src="annexes/images/Schémas1Packer.png?style=centerme" width="500">
 </p>
 
 ### Etape 2
 Exécution de Terraform - Récupération du template pour créer 6 VMs avec les [ressources souhaitées](terraform/terraform.tfvars#L11).
 <p align="center">
-  <img src="annexes/images/Schéma2Terraform.png?style=centerme">
+  <img src="annexes/images/Schéma2Terraform.png?style=centerme" width="500">
 </p>
 
 ### Etape 3
@@ -72,7 +72,7 @@ Exécution d'Ansible :<br />
 ● Jonction des 3 autres noeud au cluster kube en tant que workers<br />
 ● Déploiement des pods pour la boutique Wordpress et son stockage en base de données<br />
 <p align="center">
-  <img src="annexes/images/Schéma2Terraform.png?style=centerme;width:150px;">
+  <img src="annexes/images/Schéma2Terraform.png?style=centerme" width="500">
 </p>
 
 ## Résultat
