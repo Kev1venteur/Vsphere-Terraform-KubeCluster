@@ -5,7 +5,7 @@
   <img src="annexes/images/SchemaFinal.png?style=centerme"  width="500">
 </p>
 
-:information_source:Le playbook ansible n'est pas encore [Idempotent](https://docs.ansible.com/ansible/latest/reference_appendices/glossary.html).<br />
+:information_source: Le playbook ansible n'est pas encore [Idempotent](https://docs.ansible.com/ansible/latest/reference_appendices/glossary.html).<br />
 Il faudra entre chaque lancement du playbook Ansible, détruire et reconstruire les 6 noeuds K8s :
 ```bash
 echo "yes" | terraform destroy && echo "yes" | terraform apply
