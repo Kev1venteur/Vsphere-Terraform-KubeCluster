@@ -1,5 +1,5 @@
 # Vsphere-Terraform-KubeCluster
-:key: Ce repo fournit les fichiers Packer, Terraform et Ansible pour dépoyer sur VSphere l'infrastructure illustrée ci-dessous : 
+:key: Ce repo fournit les fichiers Packer, Terraform et Ansible pour dépoyer sur VSphere une partie de l'infrastructure illustrée ci-dessous (voir le Déroulé plus bas) : 
 
 <p align="center">
   <img src="annexes/images/SchemaFinal.png?style=centerme"  width="500">
