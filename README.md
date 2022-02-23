@@ -81,7 +81,7 @@ Vous avez un Wordpress lié à une bdd MySQL qui sont en place sur un cluster K8
 
 ## Debug
 
-#### Augmentez le niveau de log de Terraform
+#### Augmentez le niveau de log
 
 Avant de lancer le script définissez les variables d'environnement pour changer vos loglevels.
 ```bash
