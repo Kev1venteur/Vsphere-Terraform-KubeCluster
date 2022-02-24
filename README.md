@@ -13,17 +13,17 @@ echo "yes" | terraform destroy && echo "yes" | terraform apply
 C'est un point que nous savons à améliorer, n'hésitez pas à faire des PR !<br />
 
 :information_source: Les mots de passe sont à changer dans ces fichiers :<br />
-● Le JSON pour Packer, il faut paramétrer les variables dans [ce fichier](packer/Ubuntu2004-Packer.json).<br />
-● Le fichier User-Data pour la VM Packer, mettre le mot de passe User hashé [ici](packer/http/user-data#L20).<br />
+- Le JSON pour Packer, il faut paramétrer les variables dans [ce fichier](packer/Ubuntu2004-Packer.json).<br />
+- Le fichier User-Data pour la VM Packer, mettre le mot de passe User hashé [ici](packer/http/user-data#L20).<br />
 Ce mot de passe est à générer avec la commande :
 ```bash
 mkpasswd -m sha-512 "Ton MDP USER"
 #mkpasswd est installable avec le package whois
 sudo apt-get install whois
 ```
-● Pour Terraform, c'est [ce fichier](terraform/terraform.tfvars) qu'il faut adapter à votre configuration.<br />
-● Pour Ansible, c'est [ce fichier](ansible/hosts) qu'il faut adapter à votre configuration.<br />
-● Il faut aussi changer les passwords des YAML [Wordpress](ansible/roles/kube-apps/templates/wordpress.yaml#L68) et [MySQL](ansible/roles/kube-apps/templates/mysql.yaml#L66).<br />
+- Pour Terraform, c'est [ce fichier](terraform/terraform.tfvars) qu'il faut adapter à votre configuration.<br />
+- Pour Ansible, c'est [ce fichier](ansible/hosts) qu'il faut adapter à votre configuration.<br />
+- Il faut aussi changer les passwords des YAML [Wordpress](ansible/roles/kube-apps/templates/wordpress.yaml#L68) et [MySQL](ansible/roles/kube-apps/templates/mysql.yaml#L66).<br />
 
 ## Prérequis
 Installez les packages nécessaires.
@@ -67,10 +67,10 @@ Exécution de Terraform - Récupération du template pour créer 6 VMs avec les 
 
 ### Etape 3
 Exécution d'Ansible :<br />
-● Installation de Docker et tous les outils K8s sur les 6 VMs<br />
-● Création d'un cluster Etcd sur les 3 machines master + leurs mise en keepalive<br />
-● Jonction des 3 autres noeud au cluster kube en tant que workers<br />
-● Déploiement des pods pour la boutique Wordpress et son stockage en base de données<br />
+- Installation de Docker et tous les outils K8s sur les 6 VMs<br />
+- Création d'un cluster Etcd sur les 3 machines master + leurs mise en keepalive<br />
+- Jonction des 3 autres noeud au cluster kube en tant que workers<br />
+- Déploiement des pods pour la boutique Wordpress et son stockage en base de données<br />
 <p align="center">
   <img src="annexes/images/Schema3Ansible.png?style=centerme" width="500">
 </p>
